@@ -17,20 +17,20 @@ public class _8_Puzzle {
         stack.push(initial);
         visited.add(initial);
         String state;
-        int count = 0;
+
         while(!stack.isEmpty()){
-            System.out.println(count++);
             state = stack.pop();
             path.push(state);
             if(state.equals(goal)){
                 long endTime   = System.nanoTime();                                 // End Time
-                System.out.println("Cost Of Path To Goal :\n"+ (path.size()-1) );            // Print Cost to Path to Goal
-                System.out.println("Search Depth :\n" + visited.size() );           // Print Search Depth
-                System.out.println("Total Time Of DFS : "+ (endTime - startTime)+ " ns ");  // Total Time
-                System.out.println("path    "+path.size());
+                System.out.println("Path To Goal From Top Of Stack To Bottom    \n");
                 for(int i=0;i<path.size();i++){
                     System.out.print("  " + path.get(i) );  // Total Time
                 }
+                System.out.println("\nCost Of Path To Goal :\n"+ (path.size()-1) );            // Print Cost to Path to Goal
+                System.out.println("Search Depth :\n" + visited.size() );           // Print Search Depth
+                System.out.println("Total Time Of DFS : "+ (endTime - startTime)+ " ns ");  // Total Time
+
                 return true;
             }
             ArrayList<String> neighbors = getNeighbor(state);
@@ -56,21 +56,22 @@ public class _8_Puzzle {
     public boolean bfs(String initial,String goal)  {
         long startTime = System.nanoTime();                                        // Start Time
         Queue<Attr>queue = new LinkedList<>();
-        ArrayList<String> visited = new ArrayList<>();                             // Explored Nodes
+        Set<String> visited = new HashSet<>();                             // Explored Nodes
         queue.add(new Attr(0,initial,new LinkedList<>(),""));
         Attr state;
         while(!queue.isEmpty()){
             state=queue.poll();
             if(state.value.equals(goal)){
                 long endTime   = System.nanoTime();                                 // End Time
-                System.out.println("Cost Of Path To Goal :\n"+state.g );            // Print Cost to Path to Goal
-                System.out.println("Search Depth :\n" + visited.size() );           // Print Max Cost (Max Depth)
-                System.out.println("Total Time Of BFS : "+ (endTime - startTime) + " ns ");  // Total Time
                 state.path.add(state.value);
-                System.out.println("Path Tp Goal is : \n");
+                System.out.println("\n Path To Goal is : \n");                         // Print Path to Goal
                 for(int i=0;i<state.path.size();i++){
                     System.out.print("  " + state.path.get(i) );  // Total Time
                 }
+                System.out.println("\nCost Of Path To Goal :\n"+state.g );            // Print Cost to Path to Goal
+                System.out.println("Search Depth :\n" + visited.size() );           // Print Max Cost (Max Depth)
+                System.out.println("Total Time Of BFS : "+ (endTime - startTime) + " ns ");  // Total Time
+
                 return true;
             }
             ArrayList<String> neighbors = getNeighbor(state.value);
@@ -155,12 +156,14 @@ public class _8_Puzzle {
             return false;
         }
         System.out.println("Path To Goal :");                           // Print Path to Goal
-        printPath(ans.path,10);
+        System.out.println(ans.path);
         System.out.println("Cost Of Path To Goal :\n"+ans.g );                      // Print Cost to Path to Goal
         System.out.println("Search Depth :\n" + explored.size() );                  // Print Search Depth
         System.out.println("Total Time Of A* Manhattan Distance : "+ (endTime - startTime) + " ns \n");  // Total Time
         System.out.println("The explored states :");
-        printState(explored);
+        for(String exp : explored){
+            System.out.print(" "+exp);
+        }
         return true;
     }
 
@@ -174,12 +177,14 @@ public class _8_Puzzle {
             return false;
         }
         System.out.println("Path To Goal :" );                               // Print Path to Goal
-        printPath(ans.path,10);
+        System.out.println(ans.path);
         System.out.println("Cost Of Path To Goal :\n"+ans.g );                          // Print Cost to Path to Goal
         System.out.println("Search Depth :\n" + explored.size() );                      // Print Search Depth
         System.out.println("Total Time Of A* Euclidean Distance  : "+ (endTime - startTime) + " ns \n");      // Total Time
         System.out.println("The explored states :");
-        printState(explored);
+        for(String exp : explored){
+            System.out.print(" "+exp);
+        }
         return true;
     }
 
