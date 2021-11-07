@@ -10,73 +10,87 @@ public class _8_Puzzle {
 
     public boolean dfs(String initial,String goal){
         long startTime = System.nanoTime();                                         // Start Time
-        Stack<Entry> stack = new Stack<Entry>();
-        stack.push(new Entry(0,0,initial,""));
-        Set<String> visited = new HashSet<>();
-        Entry state;
-        while(!stack.empty()){
+        Stack<String> stack = new Stack<>();                                          // Stack
+        Stack<String> path = new Stack<>();                                          // Stack
+
+        Set<String> visited = new HashSet<>();                                      // Visited Set
+        stack.push(initial);
+        visited.add(initial);
+        String state;
+        int count = 0;
+        while(!stack.isEmpty()){
+            System.out.println(count++);
             state = stack.pop();
-            visited.add(state.value);                                               // Explored Nodes
-            if(state.value.equals(goal)){
+            path.push(state);
+            if(state.equals(goal)){
                 long endTime   = System.nanoTime();                                 // End Time
-                state.path=state.path+"-"+state.value;
-                System.out.println("Path To Goal :\n"+state.path );                 // Print Path to Goal
-                System.out.println("Cost Of Path To Goal :\n"+state.g );            // Print Cost to Path to Goal
+                System.out.println("Cost Of Path To Goal :\n"+ (path.size()-1) );            // Print Cost to Path to Goal
                 System.out.println("Search Depth :\n" + visited.size() );           // Print Search Depth
                 System.out.println("Total Time Of DFS : "+ (endTime - startTime)+ " ns ");  // Total Time
-
+                System.out.println("path    "+path.size());
+                for(int i=0;i<path.size();i++){
+                    System.out.print("  " + path.get(i) );  // Total Time
+                }
                 return true;
             }
-            ArrayList<String> neighbors = getNeighbor(state.value);
+            ArrayList<String> neighbors = getNeighbor(state);
+            boolean flag = true;
             for(String neighbor : neighbors){
-                if(!stack.contains(neighbor) && !visited.contains(neighbor)){
-                    stack.push(new Entry(state.g+1,0,neighbor,state.path+"-"+state.value));
+                if(!visited.contains(neighbor)){
+                    flag = false;
+                    LinkedList sec_list = new LinkedList();
+//                    sec_list = (LinkedList) state.path.clone();
+                    stack.add(neighbor);
+                    visited.add(neighbor);
                 }
             }
+            if(flag){
+                path.pop();
+            }
         }
-
         long endTime   = System.nanoTime();                                         // End Time
         System.out.println("Total Time Of DFS : "+ (endTime - startTime)+ " ns ");  // Total Time
         return false;
     }
 
-    public boolean bfs(String initial,String goal){
+    public boolean bfs(String initial,String goal)  {
         long startTime = System.nanoTime();                                        // Start Time
-        Queue<Entry>queue = new LinkedList<>();
+        Queue<Attr>queue = new LinkedList<>();
         ArrayList<String> visited = new ArrayList<>();                             // Explored Nodes
-        queue.add(new Entry(0,0,initial,""));
-        Entry state;
+        queue.add(new Attr(0,initial,new LinkedList<>(),""));
+        Attr state;
         while(!queue.isEmpty()){
             state=queue.poll();
-            visited.add(state.value);
             if(state.value.equals(goal)){
                 long endTime   = System.nanoTime();                                 // End Time
-                state.path=state.path+"-"+state.value;
-                System.out.println("Path To Goal :\n"+state.path );                 // Print Path to Goal
                 System.out.println("Cost Of Path To Goal :\n"+state.g );            // Print Cost to Path to Goal
                 System.out.println("Search Depth :\n" + visited.size() );           // Print Max Cost (Max Depth)
                 System.out.println("Total Time Of BFS : "+ (endTime - startTime) + " ns ");  // Total Time
-
+                state.path.add(state.value);
+                System.out.println("Path Tp Goal is : \n");
+                for(int i=0;i<state.path.size();i++){
+                    System.out.print("  " + state.path.get(i) );  // Total Time
+                }
                 return true;
             }
             ArrayList<String> neighbors = getNeighbor(state.value);
             for(String neighbor : neighbors){
-
-                if(!queue.contains(neighbor) && !visited.contains(neighbor)){
-
-                    queue.add(new Entry(state.g+1,0,neighbor,state.path+"-"+state.value));
+                if( !visited.contains(neighbor)){
+                    LinkedList sec_list = new LinkedList();
+                    sec_list = (LinkedList) state.path.clone();
+                    queue.add(new Attr(state.g+1,neighbor,sec_list, state.value));
+                    visited.add(neighbor);
                 }
             }
-
         }
-
         long endTime  = System.nanoTime();                                         // End Time
         System.out.println("Total Time Of BFS : "+ (endTime - startTime)+ " ns ");  // Total Time
         return false;
     }
-    
-    
-private ArrayList<String> getNeighbor(String state){
+
+
+
+    private ArrayList<String> getNeighbor(String state){
         ArrayList<String> adj = new ArrayList<>();
         int index = 0,stateLength = state.length();
         // Get the index of Empty  Cell
@@ -130,29 +144,28 @@ private ArrayList<String> getNeighbor(String state){
 
         return adj ;
     }
-	
-	public boolean A_StarManhattanDistance(String initial,String goal) {
-		Set<String> explored = new LinkedHashSet<String>();
-		long startTime = System.nanoTime();                                             // Start Time
+
+    public boolean A_StarManhattanDistance(String initial,String goal) {
+        Set<String> explored = new LinkedHashSet<String>();
+        long startTime = System.nanoTime();                                             // Start Time
         Entry ans = a_star(explored,true,initial,goal);
         long endTime   = System.nanoTime();                                             // End Time
         if(ans == null){
             System.out.println("Total Time Of A* Manhattan Distance : "+ (endTime - startTime)+ " ns ");  // Total Time
             return false;
         }
-        System.out.println("Path To Goal :\n"+ans.path );                           // Print Path to Goal
+        System.out.println("Path To Goal :");                           // Print Path to Goal
+        printPath(ans.path,10);
         System.out.println("Cost Of Path To Goal :\n"+ans.g );                      // Print Cost to Path to Goal
         System.out.println("Search Depth :\n" + explored.size() );                  // Print Search Depth
-        System.out.println("Total Time Of A* Manhattan Distance : "+ (endTime - startTime) + " ns ");  // Total Time
+        System.out.println("Total Time Of A* Manhattan Distance : "+ (endTime - startTime) + " ns \n");  // Total Time
         System.out.println("The explored states :");
-		for (String element : explored) {
-			printState(element);
-		}
-		return true;
-	}
-	
-	public boolean A_StarEuclideanDistance(String initial,String goal) {
-		Set<String> explored = new LinkedHashSet<String>();
+        printState(explored);
+        return true;
+    }
+
+    public boolean A_StarEuclideanDistance(String initial,String goal) {
+        Set<String> explored = new LinkedHashSet<String>();
         long startTime = System.nanoTime();                                             // Start Time
         Entry ans = a_star(explored,false,initial,goal);
         long endTime   = System.nanoTime();                                             // End Time
@@ -160,80 +173,121 @@ private ArrayList<String> getNeighbor(String state){
             System.out.println("Total Time Of A* Euclidean Distance : "+ (endTime - startTime)+ " ns ");  // Total Time
             return false;
         }
-        System.out.println("Path To Goal :\n"+ans.path );                               // Print Path to Goal
+        System.out.println("Path To Goal :" );                               // Print Path to Goal
+        printPath(ans.path,10);
         System.out.println("Cost Of Path To Goal :\n"+ans.g );                          // Print Cost to Path to Goal
         System.out.println("Search Depth :\n" + explored.size() );                      // Print Search Depth
-        System.out.println("Total Time Of A* Euclidean Distance  : "+ (endTime - startTime) + " ns ");      // Total Time
-		System.out.println("The explored states :");
-		for (String element : explored) {
-			printState(element);
-		}
-		return true;
-	}
-	
-	public Entry a_star(Set<String> explored,boolean MD,String initial,String goal) {
+        System.out.println("Total Time Of A* Euclidean Distance  : "+ (endTime - startTime) + " ns \n");      // Total Time
+        System.out.println("The explored states :");
+        printState(explored);
+        return true;
+    }
+
+    public Entry a_star(Set<String> explored,boolean MD,String initial,String goal) {
         PriorityQueue<Entry> frontier = new PriorityQueue<>();
-		frontier.add(new Entry(0,calcH(initial,goal,MD),initial,""));
-		while(!frontier.isEmpty()) {
-			Entry state = frontier.poll();
-			explored.add(state.value);
-			
-			if(state.value.equals(goal)) {
+        frontier.add(new Entry(0,calcH(initial,goal,MD),initial,""));
+        while(!frontier.isEmpty()) {
+            Entry state = frontier.poll();
+            explored.add(state.value);
+
+            if(state.value.equals(goal)) {
                 state.path=state.path+"-"+state.value;
-				return state;
-			}
-			ArrayList<String> neighbors = getNeighbor(state.value);
-			for (String n : neighbors) {
-				Entry temp=null;
-				for (Entry element : frontier) {
-					if(n.equals(element.value)) {
-						temp=element;
-						break;
-					}
-				}
-				if(temp!=null) {
-					if(state.g+1<temp.g) {
-						temp.g=state.g+1;
-						frontier.remove(temp);
-						temp.updateKey();
-						temp.path=state.path+"-"+state.value;
-						frontier.add(temp);
-					}
-				}else if(!explored.contains(n)) {
-					frontier.add(new Entry(state.g+1,calcH(n,goal,MD),n,state.path+"-"+state.value));
-				}
-				
-			}
-			
-		}
-		
-		return null;
-	}
-	// calculate the heuristic function 
-	public float calcH(String state,String goal,boolean MD) {
-		float ans = 0;
-		for(int i=0;i<goal.length();i++) {
-			int j=state.indexOf(goal.charAt(i));
-			int x1,y1,x2,y2;
-			
-			y1=i%3;x1=(i*3)/9;                            //calculate the x and y axes to the goal element
-			y2=j%3;x2=(j*3)/9;						      //calculate the x and y axes to the state element
-			if(MD)
-				ans += Math.abs(x1-x2)+Math.abs(y1-y2);       //calculate the Manhattan Distance
-			else
-				ans += Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));       //calculate the Euclidean Distance
-		}
-		return ans;
-	}
-	public void printState(String s){
-		System.out.println("|"+s.charAt(0)+"|"+s.charAt(1)+"|"+s.charAt(2)+"|");
-		System.out.println("|"+s.charAt(3)+"|"+s.charAt(4)+"|"+s.charAt(5)+"|");
-		System.out.println("|"+s.charAt(6)+"|"+s.charAt(7)+"|"+s.charAt(8)+"|");
-		System.out.println("----------------------");
-	}
-//    public float calcGoal(String state,String goal){
-//
-//    }
+                return state;
+            }
+            ArrayList<String> neighbors = getNeighbor(state.value);
+            for (String n : neighbors) {
+                Entry temp=null;
+                for (Entry element : frontier) {
+                    if(n.equals(element.value)) {
+                        temp=element;
+                        break;
+                    }
+                }
+                if(temp!=null) {
+                    if(state.g+1<temp.g) {
+                        temp.g=state.g+1;
+                        frontier.remove(temp);
+                        temp.updateKey();
+                        temp.path=state.path+"-"+state.value;
+                        frontier.add(temp);
+                    }
+                }
+                else if(!explored.contains(n)) {
+                    frontier.add(new Entry(state.g+1,calcH(n,goal,MD),n,state.path+"-"+state.value));
+                }
+
+            }
+
+        }
+
+        return null;
+    }
+    // calculate the heuristic function
+    public float calcH(String state,String goal,boolean MD) {
+        float ans = 0;
+        for(int i=0;i<goal.length();i++) {
+            int j=state.indexOf(goal.charAt(i));
+            int x1,y1,x2,y2;
+
+            y1=i%3;x1=(i*3)/9;                            //calculate the x and y axes to the goal element
+            y2=j%3;x2=(j*3)/9;						      //calculate the x and y axes to the state element
+            if(MD)
+                ans += Math.abs(x1-x2)+Math.abs(y1-y2);       //calculate the Manhattan Distance
+            else
+                ans += Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));       //calculate the Euclidean Distance
+        }
+        return ans;
+    }
+
+    // print the explored nodes in appropriate way
+    public void printState(Set<String> explored){
+        for(int j=0;j<3;j++) {
+            for(String s: explored) {
+                System.out.print("|"+s.charAt(j*3+0)+"|"+s.charAt(j*3+1)+"|"+s.charAt(j*3+2)+"|");
+                if(j==1)System.out.print("===>");
+                else System.out.print("    ");
+            }
+            System.out.println("===>");
+        }
+
+    }
+
+    // print the path nodes in appropriate way
+    public void printPath(String path,int size) {
+        ArrayList<String> temp=new ArrayList<String>();
+        for (int i = 0; i <= path.length() / size; i++) {
+            temp.add(path.substring(i * size, Math.min((i + 1) * size, path.length())));
+        }
+        temp.remove(temp.size()-1);
+        for(int j=0;j<3;j++) {
+            for(String s: temp) {
+                System.out.print("|"+s.charAt(j*3+1)+"|"+s.charAt(j*3+2)+"|"+s.charAt(j*3+3)+"|");
+                if(j==1)System.out.print("===>");
+                else System.out.print("    ");
+            }
+            System.out.println("===>");
+        }
+    }
+}
+class Attr{
+    public int g;
+    public String value;
+    public LinkedList<String> path;
+
+    //LinkedList<String> path = new LinkedList<>() ;
+    public Attr(int g,String value,LinkedList<String> path,String from) {
+        this.g=g;
+        this.value = value;
+        this.path = path;
+        if(!from.equals("")){
+            this.path.add(from);
+        }
+
+    }
+
+    public Attr() {
+
+    }
 }
 class Entry implements Comparable<Entry> {
     public float key;
@@ -241,22 +295,22 @@ class Entry implements Comparable<Entry> {
     public float h;
     public String value;
     String path;
-    
+
     public Entry(int g,float h, String value,String from) {
-    	this.g=g;
-    	this.h=h;
+        this.g=g;
+        this.h=h;
         this.key = g+h;
         this.value = value;
         this.path=from;
     }
     public void updateKey() {
-    	key=g+h;
+        key=g+h;
     }
     // getters
 
     @Override
     public int compareTo(Entry other) {
-    	if(this.key > other.key){
+        if(this.key > other.key){
             return 1;
         }
 
